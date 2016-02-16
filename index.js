@@ -3,7 +3,7 @@
 var wrap = require('word-wrap');
 
 // This can be any kind of SystemJS compatible module.
-// We use Commonjs here, but ES6 or AMD would do just 
+// We use Commonjs here, but ES6 or AMD would do just
 // fine.
 module.exports = {
 
@@ -11,20 +11,20 @@ module.exports = {
   // be executed. We pass you cz, which currently
   // is just an instance of inquirer.js. Using
   // this you can ask questions and get answers.
-  // 
+  //
   // The commit callback should be executed when
   // you're ready to send back a commit template
-  // to git. 
-  // 
+  // to git.
+  //
   // By default, we'll de-indent your commit
   // template and will keep empty lines.
   prompter: function(cz, commit) {
 
     console.log('\nLine 1 will be cropped at 100 characters. All other lines will be wrapped after 100 characters.\n');
-    
+
     // Let's ask some questions of the user
-    // so that we can populate our commit 
-    // template. 
+    // so that we can populate our commit
+    // template.
     //
     // See inquirer.js docs for specifics.
     // You can also opt to use another input
@@ -62,8 +62,16 @@ module.exports = {
         }]
       }, {
         type: 'input',
+        name: 'OSNumber',
+        message: 'OS number:\n'
+      }, {
+        type: 'input',
+        name: 'CARDNumber',
+        message: 'Card number:\n'
+      }, {
+        type: 'input',
         name: 'scope',
-        message: 'Denote the scope of this change ($location, $browser, $compile, etc.):\n'
+        message: 'Denote the scope of this change (WEvent, WButton, WDBPanel, WMDetail, etc.):\n'
       }, {
         type: 'input',
         name: 'subject',
@@ -75,10 +83,10 @@ module.exports = {
       }, {
         type: 'input',
         name: 'footer',
-        message: 'List any breaking changes or issues closed by this change:\n'
+        message: 'List any breaking changes or issues closed by this change:\n Eg.: This closes #12 and closes #15.\n'
       }
     ], function(answers) {
-      
+
       var maxLineWidth = 100;
 
       var wrapOptions = {
@@ -89,14 +97,19 @@ module.exports = {
       };
 
       // parentheses are only needed when a scope is present
-      var scope = answers.scope.trim();
-      scope = scope ? '(' + answers.scope.trim() + ')' : '';
+      var scope      = answers.scope.trim();
+      var osnumber   = answers.OSNumber.trim();
+      var cardnumber = answers.CARDNumber.trim();
+
+      osnumber   = osnumber ? ' OS-' + answers.OSNumber.trim() : '';
+      cardnumber = cardnumber ? ' CD-' + answers.CARDNumber.trim() : '';
+      scope      = scope ? '(' + answers.scope.trim() + ')' : '';
 
       // Hard limit this line
-      var head = (answers.type + scope + ': ' + answers.subject.trim()).slice(0, maxLineWidth);
+      var head = (answers.type + scope + ': ' + answers.subject.trim() + osnumber + cardnumber).slice(0, maxLineWidth);
 
       // Wrap these lines at 100 characters
-      var body = wrap(answers.body, wrapOptions);
+      var body   = wrap(answers.body, wrapOptions);
       var footer = wrap(answers.footer, wrapOptions);
 
       commit(head + '\n\n' + body + '\n\n' + footer);
